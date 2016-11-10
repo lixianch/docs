@@ -190,6 +190,62 @@ S0      S1       E        O        P        YGC    YGCT     FGC    FGCT     GCT
 输出时间|	Every designated time|每次设定好的时间。	每次GC发生的时候。
 何时有用。|	当你试图观察堆空间变化情况|	当你试图了解单次GC产生的效果。  
 
+下面是-verbosegc 的可用参数  
+- -XX:+PrintGCDetails  
+- -XX:+PrintGCTimeStamps  
+- -XX:+PrintHeapAtGC  
+- -XX:+PrintGCDateStamps (from JDK 6 update 4)  
+
+如果只是用了 -verbosegc 。那么默认会加上 -XX:+PrintGCDetails。 –verbosgc 的附加参数并不是独立的。而是经常组合起来使用。  
+使用 –verbosegc后，每次GC发生你都会看到如下格式的结果。  
+```
+[GC [<collector>: <starting occupancy1> -> <ending occupancy1>, <pause time1> secs] <starting occupancy3> -> <ending occupancy3>, <pause time3> secs]
+```  
+
+收集器|	minor gc使用的收集器的名字。
+---|---|---
+starting occupancy1|	GC执行前新生代空间大小。
+ending occupancy1|	GC执行后新生代空间大小。
+pause time1|	因为执行minor GC，Java应用暂停的时间。
+starting occupancy3|	GC执行前堆区域总大小
+ending occupancy3|	GC执行后堆区域总大小
+pause time3|	Java应用由于执行堆空间GC（包括major GC）而停止的时间。  
+
+这是-verbosegc 输出的minor GC的例子。  
+```
+S0    S1     E      O      P        YGC    YGCT    FGC    FGCT     GCT
+0.00  66.44  54.12  10.58  86.63    217    0.928     2    0.067    0.995
+0.00  66.44  54.12  10.58  86.63    217    0.928     2    0.067    0.995
+0.00  66.44  54.12  10.58  86.63    217    0.928     2    0.067    0.995
+```  
+这是 Full GC发生时的例子  
+```
+[Full GC [Tenured: 3485K->4095K(4096K), 0.1745373 secs] 61244K->7418K(63104K), [Perm : 10756K->10756K(12288K)], 0.1762129 secs] [Times: user=0.19 sys=0.00, real=0.19 secs]
+```  
+如果使用了 CMS collector，那么如下CMS信息也会被输出。  
+由于 –verbosegc 参数在每次GC事件发生的时候都会输出日志，我们可以很轻易地观察到GC操作对于堆空间的影响。  
+**(Java) VisualVM  + Visual GC**  
+Java Visual VM是由Oracle JDK提供的图形化的汇总和监控工具。  
+![](http://i.imgur.com/9bWQGaW.png)  
+图1: VisualVM 截图  
+除了JDK中自带的版本，你还可以直接从官网下载Visual VM。出于便利性的考虑，JDK中包含的版本被命名为Java VisualVM (jvisualvm),而官网提供的版本被命名为Visual VM (visualvm)。两者的功能基本相同，只有一些细小的差别，例如安装组件的时候。就个人而言，我更喜欢可以从官网下载的Visual VM。  
+![](http://i.imgur.com/4ETatYk.png)  
+图 2: Viusal GC 安装截图  
+通过Visual GC，你可以更直观的看到执行jstatd 所得到的信息。  
+![](http://i.imgur.com/RYGZ1FH.png)  
+图3: Visual GC 执行截图  
+**HPJMeter**  
+HPJMeter 可以很方便的分析 -verbosegc 输出的结果，如果Visual GC可以视作jstat的图形化版本，那么HPJMeter就相当于 –verbosgc的图形化版本。当然，GC分析只是HPJMeter提供的众多功能之一，HPJMeter是由惠普开发的性能监控工具，他可以支持HP-UX，Linux以及MS Windows。
+起初，一个成为HPTune 被设计用来图形化的分析-verbosegc.输出的结果。但是，随着HPTune的功能被集成到HPJMeter 3.0版本之后，就没有必要单独下载HPTune了。但运行一个应用时， -verbosegc 的结果会被输出到一个独立的文件中。  
+你可以用HPJMeter直接打开这个文件，以便更直观的分析GC性能数据。  
+![](http://i.imgur.com/GcZEVoI.png)  
+图4: HPJMeter  
+推荐使用jstat 来监控GC操作，如果你感觉到GC操作的执行时间过长，那就可以使用verbosegc 参数来分析GC。GC优化的大体步骤就是在添加verbosegc 参数后，调整GC参数，分析修改后的结果。  
+## 优化Java垃圾回收机制  
+
+
+## Apache的MaxClients参数详解及其在Tomcat执行FullGC时的影响  
+
 
 
 
